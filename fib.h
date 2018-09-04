@@ -13,8 +13,8 @@ struct fibStruct {
     mpz_t* fib;						// The array which holds the calculated values
 };
 
-struct fibStruct* createFibStruct(size_t fibSize);	// Allocates memory for the struct, returns the pointer
-void populateFibStruct(struct fibStruct*);		// Populates the fibStruct's array with fibonacci data
+static struct fibStruct* createFibStruct(size_t fibSize);	// Allocates memory for the struct, returns the pointer
+static void populateFibStruct(struct fibStruct*);		// Populates the fibStruct's array with fibonacci data
 struct fibStruct* buildFibStruct(size_t fibSize);	// Executes both of the above functions, and returns the resulting allocated and populated fibStruct
 
 void destroyFibStruct(struct fibStruct*);		// Frees all memory tied to a fibStruct
