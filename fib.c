@@ -4,9 +4,7 @@
 
 #include "fib.h"
 
-typedef int bool;
 #define true 1
-#define false 0
 
 /**
  * Allocate memory for and populate a fibStruct
@@ -24,8 +22,8 @@ static struct fibStruct* createFibStruct(size_t size) {
     sFib->size = size;
     
     // This is where we are storing the fibonacci values
-    // Allocate the structs' memory boxes
-    sFib->fib = malloc(sizeof(mpz_t) * size);
+    // Allocate the structs' memory blocks
+    sFib->fib = malloc(sizeof(ELEM_T) * size);
 
     return sFib;
 }
@@ -36,11 +34,12 @@ static struct fibStruct* createFibStruct(size_t size) {
  * @param struct fibStruct*
  */
 void destroyFibStruct(struct fibStruct* sFib) {
-    // Destroy all of the mp structures
+    // Destroy all of the memory allocated for fib
+#ifdef HAVE_GMP_H
     for(int index = 0; index < sFib->size; index++) {
 	mpz_clear(sFib->fib[index]);
     }
-
+#endif /* HAVE_GMP_H */
     // Free the memory allocated for their pointers
     free(sFib->fib);
 
@@ -88,15 +87,14 @@ static void populateFibStruct(struct fibStruct* sFib) {
     }
 
 size1:
-    mpz_init_set_ui(sFib->fib[1],1);
+    FIBSET(sFib->fib[1],1);
     
 size0:
-    mpz_init(sFib->fib[0]); // This sets the value of a to 0, so we don't need to do any re-assigning
+    FIBSET(sFib->fib[0],0);
 
     // This will automatically be skipped if the size is <= 2, so don't waste time checking with an if
     for(int index = 2; index < size; index++) {
-	mpz_init(sFib->fib[index]);
-	mpz_add(sFib->fib[index], sFib->fib[index - 1], sFib->fib[index - 2]);
+	FIBADD(sFib->fib[index], sFib->fib[index - 1], sFib->fib[index - 2]);
     }
 
     return;
@@ -117,8 +115,13 @@ char* fibValue(struct fibStruct* sFib, size_t index) {
     }
 
     else {
-	char* str = mpz_get_str(NULL,10,sFib->fib[index]);
-	return str;    
+#ifdef HAVE_GMP_H
+	char* out = mpz_get_str(NULL,10,sFib->fib[index]);
+#else
+	char out[32];
+	sprintf(out,"%llu",sFib->fib[index]);
+#endif /* HAVE_GMP_H */
+	return out;
     }
 
 }
@@ -129,8 +132,8 @@ char* fibValue(struct fibStruct* sFib, size_t index) {
  * @param struct fibStruct*
  */
 static void outputFibValues(struct fibStruct* sFib) {
-    for(int index = 1; index < sFib->size; index++) {
-	printf("%d: %s\n",index,fibValue(sFib,index));
+    for(unsigned long index = 1; index < sFib->size; index++) {
+	printf("%lu: %s\n",index,fibValue(sFib,index));
     }
 }
 
@@ -193,7 +196,7 @@ start:
     //outputFibValues(sFib); // @DEBUG
 
     while(true) {
-	printf("Which fibonacci index would you like? Must be between 0 and %d: ",sFib->size - 1);
+	printf("Which fibonacci index would you like? Must be between 0 and %lu: ",sFib->size - 1);
 	char* str = readline(NULL);
 
 	// readline returns the empty string on a newline w/o data or w/ invalid data, and NULL on EOF
@@ -212,7 +215,7 @@ start:
 
 	// Protect against buffer overflows
 	if(input >= sFib->size) {
-	    printf("Input value must be between 0 and %d\n",sFib->size - 1);
+	    printf("Input value must be between 0 and %lu\n",sFib->size - 1);
 	    continue;
 	}
 
