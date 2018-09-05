@@ -4,6 +4,8 @@
 
 #include "fib.h"
 
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-label"
 #define true 1
 
 /**

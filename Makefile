@@ -15,13 +15,13 @@ all: ${TARGET}
 ${TARGET}: fib.o
 	${CC} ${CFLAGS} ${LIBS} ${INCLUDES} -o ${TARGET} fib.c
 
-config.h.in: configure.ac
+config.in: configure.ac
 	${AUTOHEADER}
 
-${CONFIGURE}: configure.ac
-
-config.h: config.h.in  configure.ac
+configure: configure.ac config.in
 	${AUTOCONF}
+
+config.h: config.in  configure.ac configure
 	${CONFIGURE}
 
 fib.o: fib.c fib.h config.h
@@ -32,4 +32,4 @@ clean:
 
 distclean:
 	make clean
-	${RM} -r config.log config.status config.h config.h.in autom4te.cache ${CONFIGURE}
+	${RM} -r config.log config.status config.h config.in autom4te.cache ${CONFIGURE}

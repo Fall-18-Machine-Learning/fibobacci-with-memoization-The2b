@@ -1,5 +1,5 @@
 AC_INIT([fibonacci],[1.0])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_HEADERS([config.h:config.in])
 
 AC_TYPE_UINTMAX_T()
 AC_CHECK_HEADERS([gmp.h],
