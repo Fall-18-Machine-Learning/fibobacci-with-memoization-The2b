@@ -622,10 +622,10 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
-HAVE_UNISTD_H_FALSE
-HAVE_UNISTD_H_TRUE
-HAVE_READLINE_READLINE_H_FALSE
-HAVE_READLINE_READLINE_H_TRUE
+WITH_UNISTD_H_FALSE
+WITH_UNISTD_H_TRUE
+WITH_READLINE_READLINE_H_FALSE
+WITH_READLINE_READLINE_H_TRUE
 WITH_GMP_FALSE
 WITH_GMP_TRUE
 HAVE_INTTYPES_H_FALSE
@@ -725,6 +725,7 @@ enable_option_checking
 enable_silent_rules
 enable_dependency_tracking
 with_gmp
+with_readline
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1360,6 +1361,8 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --without-gmp           Disables usage of the GNU Multi-Precision libaray
+                          [default=check]
+  --without-readline      Disables usage of the GNU Realine library
                           [default=check]
 
 Some influential environment variables:
@@ -2138,6 +2141,8 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+
+# Enable automake warnings, make them fatal since they're less silly than GCC warnings, and disable GNU Standard enforcement
 am__api_version='1.15'
 
 ac_aux_dir=
@@ -2747,11 +2752,15 @@ END
 fi
 
 
+# Make a header defining various features in order to make the info available to the pre-processor
 ac_config_headers="$ac_config_headers config.h:config.in"
 
+
+# Make a Makefile out of this with standard targets
 ac_config_files="$ac_config_files Makefile"
 
 
+# Verify we have a C compiler, and set it to the variable CC here and in the Makefile
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3793,7 +3802,7 @@ fi
 
 
 # I'm putting two statements here looking for uintmax_t. One is to guarentee it is defined, whether natively or via macro
-# The other is to tell automake whether or not stdint.h and inttypes.h need to be included
+# The other is to tell automake whether or not stdint.h and inttypes.h need to be included, since I cannot set variables in the first command
 
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for unsigned long long int" >&5
@@ -4276,7 +4285,7 @@ else
 fi
 
 
-# Tell Makefile whether or not uintmax_t is native
+# Tell Makefile whether or not uintmax_t is native. This will affect header requirements
  if test "x$have_uintmax_t" = xyes; then
   HAVE_UINTMAX_T_TRUE=
   HAVE_UINTMAX_T_FALSE='#'
@@ -4322,7 +4331,7 @@ done
 fi
 
 # These will auto-fail if $have_uintmax_t is false, since they will be empty. However, they need to be tested in all builds, or automake may screw stuff up
-  if test "x$have_stdint_h" = xyes; then
+ if test "x$have_stdint_h" = xyes; then
   HAVE_STDINT_H_TRUE=
   HAVE_STDINT_H_FALSE='#'
 else
@@ -4330,7 +4339,7 @@ else
   HAVE_STDINT_H_FALSE=
 fi
 
-  if test "x$have_inttypes_h" = xyes; then
+ if test "x$have_inttypes_h" = xyes; then
   HAVE_INTTYPES_H_TRUE=
   HAVE_INTTYPES_H_FALSE='#'
 else
@@ -4339,42 +4348,7 @@ else
 fi
 
 
-# Do a similar check for readline
-for ac_header in readline/readline.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readline_readline_h" "$ac_includes_default"
-if test "x$ac_cv_header_readline_readline_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_READLINE_READLINE_H 1
-_ACEOF
- have_readline_readline_h=yes
-else
-
-     have_readline_readline_h=no
-     for ac_header in unistd.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
-if test "x$ac_cv_header_unistd_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_UNISTD_H 1
-_ACEOF
- have_unistd_h = yes
-else
-
-	 have_unistd_h = no
-	 as_fn_error $? "Fatal error: Cannot find either readline/readline.h or unistd.h, one of which is required." "$LINENO" 5
-
-fi
-
-done
-
-
-fi
-
-done
-
-
-
+# Allow GMP and GNU Readline libs to be manually disabled in configure
 
 # Check whether --with-gmp was given.
 if test "${with_gmp+set}" = set; then :
@@ -4384,9 +4358,18 @@ else
 fi
 
 
+# Check whether --with-readline was given.
+if test "${with_readline+set}" = set; then :
+  withval=$with_readline; with_readline=no
+else
+  with_readline=check
+fi
+
+
+# If GMP isn't manually disabled, check for its existance. Set appropriate macros in config.h, such that whichever one we're using is irrelevant to the source code we're writing. The pre-processor will fill in the blanks based on configure's instructions.
 if test "x$with_gmp" != xno; then :
 
-     for ac_header in gmp.h
+    for ac_header in gmp.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "gmp.h" "ac_cv_header_gmp_h" "$ac_includes_default"
 if test "x$ac_cv_header_gmp_h" = xyes; then :
@@ -4406,7 +4389,7 @@ $as_echo "#define FIBADD(fib, val1, val2) do{mpz_init(fib); mpz_add(fib,val1,val
 
 $as_echo "#define FIBGET(fibElem, val) do{*val = mpz_get_str(NULL,10,fibElem);}while(0)" >>confdefs.h
 
-	  if true; then
+	 if true; then
   WITH_GMP_TRUE=
   WITH_GMP_FALSE='#'
 else
@@ -4417,11 +4400,12 @@ fi
 
 else
 
-	 if test "x$with_gmp" != xcheck; then
-	    as_fn_error $? "Fatal error: GMP explicitly requested but not found" "$LINENO" 5
-	 else
-	    using_gmp=no
-	 fi
+     # This shouldn't be here, since I don't have an option to get here. However, if we do, there's a handle for it. If GMP is manually requested (it cannot be), but cannot be found, exit
+     if test "x$with_gmp" != xcheck; then
+	as_fn_error $? "Fatal error: GMP explicitly requested but not found" "$LINENO" 5
+     else
+	using_gmp=no
+     fi
 
 fi
 
@@ -4429,8 +4413,7 @@ done
 
 else
 
-	using_gmp=no
-
+    using_gmp=no
 
 fi
 
@@ -4460,24 +4443,88 @@ $as_echo "#define FIBGET(fibElem,val) do {*val = malloc(sizeof(char) * 256); spr
 
 fi
 
-# @TODO Make this optional
- if test "x$have_readline_readline_h" = xyes; then
-  HAVE_READLINE_READLINE_H_TRUE=
-  HAVE_READLINE_READLINE_H_FALSE='#'
+# Now, do the same mess for Readline! That one should be a lot less bulky considering the fact that it won't need so many definitions
+if test "x$with_readline" != xno; then :
+
+    for ac_header in readline/readline.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readline_readline_h" "$ac_includes_default"
+if test "x$ac_cv_header_readline_readline_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_READLINE_READLINE_H 1
+_ACEOF
+
+	using_readline_readline_h=yes
+
+$as_echo "#define READ_STDIN(str,prompt) do {*str = readline(prompt);} while(0)" >>confdefs.h
+
+
 else
-  HAVE_READLINE_READLINE_H_TRUE='#'
-  HAVE_READLINE_READLINE_H_FALSE=
+
+	using_readline_readline_h=no
+
 fi
 
- if test "x$have_readline_readline_h" = xno && "x$have_unistd_h" = xyes; then
-  HAVE_UNISTD_H_TRUE=
-  HAVE_UNISTD_H_FALSE='#'
+done
+
+
 else
-  HAVE_UNISTD_H_TRUE='#'
-  HAVE_UNISTD_H_FALSE=
+
+    using_readline_readline_h=no
+
+fi
+
+if test "x$using_readline_readline_h" = xno; then :
+
+    for ac_header in unistd.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
+if test "x$ac_cv_header_unistd_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_UNISTD_H 1
+_ACEOF
+
+	using_unistd_h=yes
+
+else
+
+	using_unistd_h=no
+	as_fn_error $? "Fatal error: Cannot find either readline/readline.h or unistd.h, one of which is required." "$LINENO" 5
+
+fi
+
+done
+
+
+fi
+
+if test "x$using_unistd_h" = xyes; then :
+
+
+$as_echo "#define READ_STDIN(str,prompt) do {*str = malloc(sizeof(char) * 256); printf(prompt); int len = read(STDIN_FILENO,*str,255); *(*str + len) = '\\0';} while(0)" >>confdefs.h
+
+
+fi
+
+# Same as above, this needs to be able to be processed every time, so we check it outside the if statement
+ if test "x$using_readline_readline_h" = xyes; then
+  WITH_READLINE_READLINE_H_TRUE=
+  WITH_READLINE_READLINE_H_FALSE='#'
+else
+  WITH_READLINE_READLINE_H_TRUE='#'
+  WITH_READLINE_READLINE_H_FALSE=
+fi
+
+ if test "x$using_readline_readline_h" = xno && "x$have_unistd_h" = xyes; then
+  WITH_UNISTD_H_TRUE=
+  WITH_UNISTD_H_FALSE='#'
+else
+  WITH_UNISTD_H_TRUE='#'
+  WITH_UNISTD_H_FALSE=
 fi
 
 
+# Let autoconf know it's got all the instructions, go to work!
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -4631,12 +4678,12 @@ if test -z "${WITH_GMP_TRUE}" && test -z "${WITH_GMP_FALSE}"; then
   as_fn_error $? "conditional \"WITH_GMP\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${HAVE_READLINE_READLINE_H_TRUE}" && test -z "${HAVE_READLINE_READLINE_H_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_READLINE_READLINE_H\" was never defined.
+if test -z "${WITH_READLINE_READLINE_H_TRUE}" && test -z "${WITH_READLINE_READLINE_H_FALSE}"; then
+  as_fn_error $? "conditional \"WITH_READLINE_READLINE_H\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
-if test -z "${HAVE_UNISTD_H_TRUE}" && test -z "${HAVE_UNISTD_H_FALSE}"; then
-  as_fn_error $? "conditional \"HAVE_UNISTD_H\" was never defined.
+if test -z "${WITH_UNISTD_H_TRUE}" && test -z "${WITH_UNISTD_H_FALSE}"; then
+  as_fn_error $? "conditional \"WITH_UNISTD_H\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 

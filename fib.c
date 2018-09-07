@@ -171,17 +171,16 @@ int main() {
 
 start:
     ;
-    // Error checker
-    int error = 0;
     do {
+	// Error checker
+	int error = 0;
+
 	// Figure out how many fibonacci numbers to calc from user
-#ifdef HAVE_READLINE_READLINE_H
-	char* sizeStr = readline("How many fibonacci numbers would you like to calculate, including 0? ");
-#else
-	char sizeStr[256]; // Again, nobody should overflow this (since the resulting fib sequence would be massive in comparison) and if they do, they would need GNU libraries anyway
-	ssize_t strLen = read(STDIN_FILENO, sizeStr, 255);
-	sizeStr[strLen] = '\0'; // read only gives us a raw input. Add the null-terminator so that we can actually use the string in the furure
-#endif /* HAVE_READLINE_READLINE_H */
+	const char* HOW_MANY_FIB_Q = "How many fibonacci numbers would you like to calculate, including 0? ";
+	char* sizeStr;
+
+	// Read from stdin how many fibonacci numbers to calc
+	READ_STDIN(&sizeStr,HOW_MANY_FIB_Q);
 
 	// If it's EOF, exit cleanly
 	if(sizeStr == NULL) {
@@ -211,7 +210,9 @@ start:
 
     while(true) {
 	printf("Which fibonacci index would you like? Must be between 0 and %zd: ",sFib->size - 1);
-	char* str = readline(NULL);
+	char* str;
+	
+	READ_STDIN(&str,"");
 
 	// readline returns the empty string on a newline w/o data or w/ invalid data, and NULL on EOF
 	// Handle each situation appropriately
@@ -223,13 +224,28 @@ start:
 	else if (strcmp(str,"") == 0) {
 	    continue;
 	}
-	
+	// @TODO Make this portable
+	// libc implementation
+	/*
+	if(strLen == 0) {
+	    printf("\n");
+	}
+	else if (strcmp(str,"") == 0) {
+	    continue;
+	}
+	*/
+
+	// Protect against buffer overflows of the pre-calc'd fibonacci numbers
+	if(input >= sFib->size) {
+	    printf("Input value must be between 0 and %zu\n",sFib->size - 1);
+	    continue;
+	}
+
 	// If we are still running, we have a non-empty value
 	uintmax_t input = strtoumax(str,NULL,10);
 
-	// Protect against buffer overflows
-	if(input >= sFib->size) {
-	    printf("Input value must be between 0 and %zu\n",sFib->size - 1);
+	// This error function checks overflows for the size value as well as invalid inputs, prints the proper message, and returns -1 if there's an error, or 0 if there's not. If it returns something other than 0, jump out
+	if(strToIntErrors() != 0) {
 	    continue;
 	}
 

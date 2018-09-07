@@ -87,13 +87,13 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 bin_PROGRAMS = fib$(EXEEXT)
-@WITH_GMP_TRUE@am__append_1 = gmp.h
-@WITH_GMP_TRUE@am__append_2 = -lgmp
+@WITH_GMP_TRUE@am__append_1 = -lgmp
+@WITH_GMP_TRUE@am__append_2 = gmp.h
 @HAVE_STDINT_H_TRUE@am__append_3 = stdint.h
 @HAVE_INTTYPES_H_TRUE@am__append_4 = inttypes.h
-
-# @TODO Make this optional
-@HAVE_READLINE_READLINE_H_TRUE@am__append_5 = -lreadline
+@WITH_READLINE_READLINE_H_TRUE@am__append_5 = -lreadline
+@WITH_READLINE_READLINE_H_TRUE@am__append_6 = readline/readline.h
+@WITH_READLINE_READLINE_H_FALSE@am__append_7 = unistd.h
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -110,10 +110,10 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__fib_SOURCES_DIST = fib.c fib.h config.h stdlib.h stdio.h string.h \
-	errno.h gmp.h stdint.h inttypes.h
+	errno.h gmp.h stdint.h inttypes.h readline/readline.h unistd.h
 am__objects_1 =
 am_fib_OBJECTS = fib.$(OBJEXT) $(am__objects_1) $(am__objects_1) \
-	$(am__objects_1)
+	$(am__objects_1) $(am__objects_1) $(am__objects_1)
 fib_OBJECTS = $(am_fib_OBJECTS)
 fib_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -280,8 +280,9 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 fib_SOURCES = fib.c fib.h config.h stdlib.h stdio.h string.h errno.h \
-	$(am__append_1) $(am__append_3) $(am__append_4)
-AM_LDFLAGS = $(am__append_2) $(am__append_5)
+	$(am__append_2) $(am__append_3) $(am__append_4) \
+	$(am__append_6) $(am__append_7)
+AM_LDFLAGS = $(am__append_1) $(am__append_5)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
