@@ -108,7 +108,7 @@ AS_IF([test "x$using_readline_readline_h" = xno],
 
 AS_IF([test "x$using_unistd_h" = xyes],
 [
-    AC_DEFINE([READ_STDIN(str,prompt)],[do {*str = malloc(sizeof(char) * 256); printf(prompt); fgets(*str,255,stdin);} while(0)],[Defines the function used to read from stdin the number of fibonacci numbers to calculate without GNU Readline])
+    AC_DEFINE([READ_STDIN(str,prompt)],[do {*str = malloc(sizeof(char) * 256); printf(prompt); fgets(*str,256,stdin);} while(0)],[Defines the function used to read from stdin the number of fibonacci numbers to calculate without GNU Readline])
 ])
 
 # Same as above, this needs to be able to be processed every time, so we check it outside the if statement
