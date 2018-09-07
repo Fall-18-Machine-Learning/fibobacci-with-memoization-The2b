@@ -13,6 +13,64 @@
 #define NEWLINE_VAL 1
 
 /**
+ * Creates and populates a fibonacci structure
+ * This is the only function you should call in order to create such a structure
+  // read only gives us a raw input. Add the null-terminator so that we can actually use the string in the furure*
+ * @param size_t size
+ * @returns struct fibStruct*
+ */
+struct fibStruct* buildFibStruct(size_t size) {
+    struct fibStruct* sFib = createFibStruct(size);
+    populateFibStruct(sFib);
+
+    return sFib;
+}
+
+/**
+ * Release the memory associated with a fibStruct
+ *
+ * @param struct fibStruct*
+ */
+void destroyFibStruct(struct fibStruct* sFib) {
+    // Destroy all of the memory allocated for fib
+#ifdef WITH_GMP_H
+    // With GMP, these objects need to be cleared by GMP. If we're not using it, they're just ints and we can just free the memory
+    for(size_t index = 0; index < sFib->size; index++) {
+	mpz_clear(sFib->fib[index]);
+    }
+#endif /* HAVE_GMP_H */
+    // Free the memory allocated for their pointers
+    free(sFib->fib);
+
+    // And free the memory of the struct itself
+    free(sFib);
+
+    return;
+}
+
+/**
+ * Get the index-th fibonacci value from a fibonacci structure
+ * This function should be processed with either strtol (or a similar function) or using a bignum library. The latter is preferred, to prevent overflows
+ *
+ * @param struct fibStruct*
+ * @param size_t index
+ * @returns char* fibVal
+ */
+int fibValue(struct fibStruct* sFib, size_t index, char** val) {
+    // Since we're using unsigned long long ints, this can be an error checker, since you really shouldn't need to check the first index, and there isn't any other value we can use
+    if(index >= sFib->size) {
+	return -1;
+    }
+
+    else {
+	// Defined at compilation time in config.h
+	FIBGET(sFib->fib[index],val);
+    }
+    
+    return 0;
+}
+
+/**
  * Allocate memory for and populate a fibStruct
  *
  * This function should not be called by users; Instead, call the buildFibStruct function
@@ -30,41 +88,6 @@ static struct fibStruct* createFibStruct(size_t size) {
     // This is where we are storing the fibonacci values
     // Allocate the structs' memory blocks
     sFib->fib = malloc(sizeof(ELEM_T) * size);
-
-    return sFib;
-}
-
-/**
- * Release the memory associated with a fibStruct
- *
- * @param struct fibStruct*
- */
-void destroyFibStruct(struct fibStruct* sFib) {
-    // Destroy all of the memory allocated for fib
-#ifdef WITH_GMP_H
-    for(size_t index = 0; index < sFib->size; index++) {
-	mpz_clear(sFib->fib[index]);
-    }
-#endif /* HAVE_GMP_H */
-    // Free the memory allocated for their pointers
-    free(sFib->fib);
-
-    // And free the memory of the struct itself
-    free(sFib);
-
-    return;
-}
-
-/**
- * Creates and populates a fibonacci structure
- * This is the only function you should call in order to create such a structure
-  // read only gives us a raw input. Add the null-terminator so that we can actually use the string in the furure*
- * @param size_t size
- * @returns struct fibStruct*
- */
-struct fibStruct* buildFibStruct(size_t size) {
-    struct fibStruct* sFib = createFibStruct(size);
-    populateFibStruct(sFib);
 
     return sFib;
 }
@@ -93,9 +116,11 @@ static void populateFibStruct(struct fibStruct* sFib) {
     }
 
 size1:
+    // Defined at compilation time in config.h
     FIBSET(sFib->fib[1],1);
     
 size0:
+    // Defined at compilation time in config.h
     FIBSET(sFib->fib[0],0);
 
     // This will automatically be skipped if the size is <= 2, so don't waste time checking with an extra if
@@ -104,27 +129,6 @@ size0:
     }
 
     return;
-}
-
-/**
- * Get the index-th fibonacci value from a fibonacci structure
- * This function should be processed with either strtol (or a similar function) or using a bignum library. The latter is preferred, to prevent overflows
- *
- * @param struct fibStruct*
- * @param size_t index
- * @returns char* fibVal
- */
-int fibValue(struct fibStruct* sFib, size_t index, char** val) {
-    // Since we're using unsigned long long ints, this can be an error checker, since you really shouldn't need to check the first index, and there isn't any other value we can use
-    if(index >= sFib->size) {
-	return -1;
-    }
-
-    else {
-	FIBGET(sFib->fib[index],val);
-    }
-    
-    return 0;
 }
 
 /**
@@ -172,6 +176,7 @@ static int strToIntErrors() {
 
 /**
  * Checks the input for newlines or EOF. Returns 0 if neither are present, 1 if only a newline is present, and 2 if only an EOF is present
+ * Due to the relative complexity of these statements, we're using conditional compilation instead of a macro, and inline it for a similar effect to macros
  *
  * @param char* str
  * @returns int specialCaseVal
@@ -214,6 +219,7 @@ start:
 	char* sizeStr;
 
 	// Read from stdin how many fibonacci numbers to calc
+	// This is defined at compilation time. When configure decides whether or not to use GNU Readline, it puts a macro into config.h with the proper command.
 	READ_STDIN(&sizeStr,HOW_MANY_FIB_Q);
 
 	// Check for EOF or newline. Handle each situation appropriately.
@@ -232,6 +238,7 @@ start:
 	// Try to convert the string to a usable value
 	calcSize = strtoumax(sizeStr,NULL,10);
 
+	// Catch errors
 	error = strToIntErrors();
 
 	/*
@@ -253,6 +260,7 @@ start:
 	printf("Which fibonacci index would you like? Must be between 0 and %zd: ",sFib->size - 1);
 	char* str;
 	
+	// Defined at compilation-time in config.h
 	READ_STDIN(&str,"");
 
 	// Check for EOF or newline. Handle each situation appropriately.

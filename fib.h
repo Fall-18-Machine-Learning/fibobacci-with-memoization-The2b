@@ -34,9 +34,16 @@ struct fibStruct {
 
 static struct fibStruct* createFibStruct(size_t fibSize);   // Allocates memory for the struct, returns the pointer
 static void populateFibStruct(struct fibStruct*);	    // Populates the fibStruct's array with fibonacci data
+
 struct fibStruct* buildFibStruct(size_t fibSize);	    // Executes both of the above functions, and returns the resulting allocated and populated fibStruct
 
 void destroyFibStruct(struct fibStruct*);		    // Frees all memory tied to a fibStruct
 
 int fibValue(struct fibStruct*, size_t index, char** val);  // Find the index-th value in the populated fibonacci sequence. Returns NULL if you go our of bounds.
+
+static int outputFibValues(struct fibStruct*);		    // A debug function which prints out every fibonacci value in the struct after being fully populated
+
+static int strToIntErrors();				    // Checks errno for errors (overflows and invalid inputs) when converting input strings to ints
+static inline int eofNewlineChecker(char* inStr);	    // Checks the input string for blank lines and EOF
+
 #endif /* _THE2B_FIB_H */

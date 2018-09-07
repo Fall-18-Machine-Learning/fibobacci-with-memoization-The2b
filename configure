@@ -4507,7 +4507,7 @@ fi
 if test "x$using_unistd_h" = xyes; then :
 
 
-$as_echo "#define READ_STDIN(str,prompt) do {*str = malloc(sizeof(char) * 256); printf(prompt); fgets(*str,255,stdin);} while(0)" >>confdefs.h
+$as_echo "#define READ_STDIN(str,prompt) do {*str = malloc(sizeof(char) * 256); printf(prompt); fgets(*str,256,stdin);} while(0)" >>confdefs.h
 
 
 fi
