@@ -38,7 +38,7 @@ static struct fibStruct* createFibStruct(size_t size) {
 void destroyFibStruct(struct fibStruct* sFib) {
     // Destroy all of the memory allocated for fib
 #ifdef HAVE_GMP_H
-    for(int index = 0; index < sFib->size; index++) {
+    for(size_t index = 0; index < sFib->size; index++) {
 	mpz_clear(sFib->fib[index]);
     }
 #endif /* HAVE_GMP_H */
@@ -94,8 +94,8 @@ size1:
 size0:
     FIBSET(sFib->fib[0],0);
 
-    // This will automatically be skipped if the size is <= 2, so don't waste time checking with an if
-    for(int index = 2; index < size; index++) {
+    // This will automatically be skipped if the size is <= 2, so don't waste time checking with an extra if
+    for(size_t index = 2; index < size; index++) {
 	FIBADD(sFib->fib[index], sFib->fib[index - 1], sFib->fib[index - 2]);
     }
 
@@ -110,33 +110,43 @@ size0:
  * @param size_t index
  * @returns char* fibVal
  */
-char* fibValue(struct fibStruct* sFib, size_t index) {
+int fibValue(struct fibStruct* sFib, size_t index, char* val) {
     // Since we're using unsigned long long ints, this can be an error checker, since you really shouldn't need to check the first index, and there isn't any other value we can use
     if(index >= sFib->size) {
-	return NULL;
+	return -1;
     }
 
     else {
-#ifdef HAVE_GMP_H
-	char* out = mpz_get_str(NULL,10,sFib->fib[index]);
+#ifdef HAVE_GMP_H // @TODO Replace this with FIBGET, define FIBGET in configure.ac
+	val = mpz_get_str(NULL,10,sFib->fib[index]);
 #else
-	char out[32];
-	sprintf(out,"%llu",sFib->fib[index]);
+	sprintf(val,"%ju",sFib->fib[index]);
 #endif /* HAVE_GMP_H */
-	return out;
     }
-
+    
+    return 0;
 }
 
 /**
  * This is a debug function used to verify that the fibonacci values are behaving correctly
+ * @DEBUG
  *
  * @param struct fibStruct*
+ * @return int error
  */
-static void outputFibValues(struct fibStruct* sFib) {
-    for(unsigned long index = 1; index < sFib->size; index++) {
-	printf("%lu: %s\n",index,fibValue(sFib,index));
+static int outputFibValues(struct fibStruct* sFib) {
+    char fibVal[256];
+    for(size_t index = 1; index < sFib->size; index++) {
+	if(fibValue(sFib,index,fibVal) == 0) {
+	    printf("%zu: %s\n",index,fibVal);
+	}
+	else {
+	    printf("Error in outputFibValues; Attempting to reach an inappropriate index value");
+	    return -1;
+	}
     }
+
+    return 0;
 }
 
 /**
@@ -161,7 +171,7 @@ int strToIntErrors() {
 }
 
 int main() {
-    unsigned long long int calcSize;
+    size_t calcSize;
 
 start:
     ;
@@ -169,7 +179,13 @@ start:
     int error = 0;
     do {
 	// Figure out how many fibonacci numbers to calc from user
+#ifdef HAVE_READLINE_READLINE_H
 	char* sizeStr = readline("How many fibonacci numbers would you like to calculate, including 0? ");
+#else
+	char sizeStr[256]; // Again, nobody should overflow this (since the resulting fib sequence would be massive in comparison) and if they do, they would need GNU libraries anyway
+	ssize_t strLen = read(STDIN_FILENO, sizeStr, 255);
+	sizeStr[strLen] = '\0';
+#endif /* HAVE_READLINE_READLINE_H */
 
 	// If it's EOF, exit cleanly
 	if(sizeStr == NULL) {
@@ -182,7 +198,7 @@ start:
 	}
 	
 	// Try to convert the string to a usable value
-	calcSize = strtoull(sizeStr,NULL,10);
+	calcSize = strtoumax(sizeStr,NULL,10);
 
 	error = strToIntErrors();
 
@@ -198,7 +214,7 @@ start:
     //outputFibValues(sFib); // @DEBUG
 
     while(true) {
-	printf("Which fibonacci index would you like? Must be between 0 and %lu: ",sFib->size - 1);
+	printf("Which fibonacci index would you like? Must be between 0 and %zd: ",sFib->size - 1);
 	char* str = readline(NULL);
 
 	// readline returns the empty string on a newline w/o data or w/ invalid data, and NULL on EOF
@@ -213,19 +229,20 @@ start:
 	}
 	
 	// If we are still running, we have a non-empty value
-	unsigned long long int input = strtoull(str,NULL,10);
+	uintmax_t input = strtoumax(str,NULL,10);
 
 	// Protect against buffer overflows
 	if(input >= sFib->size) {
-	    printf("Input value must be between 0 and %lu\n",sFib->size - 1);
+	    printf("Input value must be between 0 and %zu\n",sFib->size - 1);
 	    continue;
 	}
 
 	// Get our value
-	char* fibVal = fibValue(sFib,input);
-
-	// Output
-	printf("%s\n",fibVal);
+	char fibVal[256]; // This works with or without GMP, since it will be properly written over by GMPs functions if need be
+	if(fibValue(sFib,input,fibVal) == 0) {
+	    // Output
+	    printf("%s\n",fibVal);
+	}
     }
     
     // Free our memory

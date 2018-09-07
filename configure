@@ -622,6 +622,18 @@ ac_subst_vars='am__EXEEXT_FALSE
 am__EXEEXT_TRUE
 LTLIBOBJS
 LIBOBJS
+HAVE_UNISTD_H_FALSE
+HAVE_UNISTD_H_TRUE
+HAVE_READLINE_READLINE_H_FALSE
+HAVE_READLINE_READLINE_H_TRUE
+WITH_GMP_FALSE
+WITH_GMP_TRUE
+HAVE_INTTYPES_H_FALSE
+HAVE_INTTYPES_H_TRUE
+HAVE_STDINT_H_FALSE
+HAVE_STDINT_H_TRUE
+HAVE_UINTMAX_T_FALSE
+HAVE_UINTMAX_T_TRUE
 EGREP
 GREP
 CPP
@@ -3780,6 +3792,8 @@ fi
 
 
 
+# I'm putting two statements here looking for uintmax_t. One is to guarentee it is defined, whether natively or via macro
+# The other is to tell automake whether or not stdint.h and inttypes.h need to be included
 
 
   { $as_echo "$as_me:${as_lineno-$LINENO}: checking for unsigned long long int" >&5
@@ -4254,6 +4268,113 @@ _ACEOF
 fi
 
 
+ac_fn_c_check_type "$LINENO" "uintmax_t" "ac_cv_type_uintmax_t" "$ac_includes_default"
+if test "x$ac_cv_type_uintmax_t" = xyes; then :
+  have_uintmax_t=yes
+else
+  have_uintmax_t=no
+fi
+
+
+# Tell Makefile whether or not uintmax_t is native
+ if test "x$have_uintmax_t" = xyes; then
+  HAVE_UINTMAX_T_TRUE=
+  HAVE_UINTMAX_T_FALSE='#'
+else
+  HAVE_UINTMAX_T_TRUE='#'
+  HAVE_UINTMAX_T_FALSE=
+fi
+
+
+# If uintmax_t is native, check which header files we have and update automake vars
+if test "x$have_uintmax_t" = xyes; then :
+
+     for ac_header in stdint.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "stdint.h" "ac_cv_header_stdint_h" "$ac_includes_default"
+if test "x$ac_cv_header_stdint_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_STDINT_H 1
+_ACEOF
+ have_stdint_h=yes
+else
+  have_stdint_h=no
+fi
+
+done
+
+     for ac_header in inttypes.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "inttypes.h" "ac_cv_header_inttypes_h" "$ac_includes_default"
+if test "x$ac_cv_header_inttypes_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_INTTYPES_H 1
+_ACEOF
+ have_inttypes_h=yes
+else
+  have_inttypes_h=no
+fi
+
+done
+
+
+
+fi
+
+# These will auto-fail if $have_uintmax_t is false, since they will be empty. However, they need to be tested in all builds, or automake may screw stuff up
+  if test "x$have_stdint_h" = xyes; then
+  HAVE_STDINT_H_TRUE=
+  HAVE_STDINT_H_FALSE='#'
+else
+  HAVE_STDINT_H_TRUE='#'
+  HAVE_STDINT_H_FALSE=
+fi
+
+  if test "x$have_inttypes_h" = xyes; then
+  HAVE_INTTYPES_H_TRUE=
+  HAVE_INTTYPES_H_FALSE='#'
+else
+  HAVE_INTTYPES_H_TRUE='#'
+  HAVE_INTTYPES_H_FALSE=
+fi
+
+
+# Do a similar check for readline
+for ac_header in readline/readline.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readline_readline_h" "$ac_includes_default"
+if test "x$ac_cv_header_readline_readline_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_READLINE_READLINE_H 1
+_ACEOF
+ have_readline_readline_h=yes
+else
+
+    have_readline_readline_h=no
+    for ac_header in unistd.h
+do :
+  ac_fn_c_check_header_mongrel "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
+if test "x$ac_cv_header_unistd_h" = xyes; then :
+  cat >>confdefs.h <<_ACEOF
+#define HAVE_UNISTD_H 1
+_ACEOF
+ have_unistd_h = yes
+else
+
+	have_unistd_h = no
+	as_fn_error $? "Fatal error: Cannot find either readline/readline.h or unistd.h, one of which is required." "$LINENO" 5
+
+fi
+
+done
+
+
+fi
+
+done
+
+
+
 
 # Check whether --with-gmp was given.
 if test "${with_gmp+set}" = set; then :
@@ -4281,9 +4402,26 @@ $as_echo "#define FIBSET(set, val) do {mpz_init_set_ui(set,val);} while(0)" >>co
 
 $as_echo "#define FIBADD(fib, val1, val2) do{mpz_init(fib); mpz_add(fib,val1,val2);} while(0)" >>confdefs.h
 
+	  if true; then
+  WITH_GMP_TRUE=
+  WITH_GMP_FALSE='#'
+else
+  WITH_GMP_TRUE='#'
+  WITH_GMP_FALSE=
+fi
+
 
 else
-  if test "x$with_gmp" != xcheck; then
+
+	  if false; then
+  WITH_GMP_TRUE=
+  WITH_GMP_FALSE='#'
+else
+  WITH_GMP_TRUE='#'
+  WITH_GMP_FALSE=
+fi
+
+	 if test "x$with_gmp" != xcheck; then
 	    as_fn_error $? "Fatal error: GMP explicitly requested but not found" "$LINENO" 5
 	 else
 
@@ -4312,57 +4450,37 @@ $as_echo "#define FIBSET(set, val) do {set = val;} while(0)" >>confdefs.h
 
 $as_echo "#define FIBADD(fib, val1, val2) do {fib = val1 + val2;} while(0)" >>confdefs.h
 
+	 if false; then
+  WITH_GMP_TRUE=
+  WITH_GMP_FALSE='#'
+else
+  WITH_GMP_TRUE='#'
+  WITH_GMP_FALSE=
+fi
+
 
 
 fi
 
-for ac_header in stdint.h inttypes.h
-do :
-  as_ac_Header=`$as_echo "ac_cv_header_$ac_header" | $as_tr_sh`
-ac_fn_c_check_header_mongrel "$LINENO" "$ac_header" "$as_ac_Header" "$ac_includes_default"
-if eval test \"x\$"$as_ac_Header"\" = x"yes"; then :
-  cat >>confdefs.h <<_ACEOF
-#define `$as_echo "HAVE_$ac_header" | $as_tr_cpp` 1
-_ACEOF
-
+# @TODO Make this optional
+ if test "x$have_readline_readline_h" = xyes; then
+  HAVE_READLINE_READLINE_H_TRUE=
+  HAVE_READLINE_READLINE_H_FALSE='#'
+else
+  HAVE_READLINE_READLINE_H_TRUE='#'
+  HAVE_READLINE_READLINE_H_FALSE=
 fi
 
-done
+ if test "x$have_readline_readline_h" = xno && "x$have_unistd_h" = xyes; then
+  HAVE_UNISTD_H_TRUE=
+  HAVE_UNISTD_H_FALSE='#'
+else
+  HAVE_UNISTD_H_TRUE='#'
+  HAVE_UNISTD_H_FALSE=
+fi
 
 
 #@TODO FIBGET
-
-for ac_header in readline/readline.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "readline/readline.h" "ac_cv_header_readline_readline_h" "$ac_includes_default"
-if test "x$ac_cv_header_readline_readline_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_READLINE_READLINE_H 1
-_ACEOF
-
-else
-
-    for ac_header in unistd.h
-do :
-  ac_fn_c_check_header_mongrel "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
-if test "x$ac_cv_header_unistd_h" = xyes; then :
-  cat >>confdefs.h <<_ACEOF
-#define HAVE_UNISTD_H 1
-_ACEOF
-
-else
-
-	as_fn_error $? "Fatal error: Cannot find either readline/readline.h or unistd.h, one of which is required." "$LINENO" 5
-
-fi
-
-done
-
-
-fi
-
-done
-
 
 # Now, process if we want to disable any of the above features
 
@@ -4497,6 +4615,38 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
   as_fn_error $? "conditional \"am__fastdepCC\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_UINTMAX_T_TRUE}" && test -z "${HAVE_UINTMAX_T_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_UINTMAX_T\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_STDINT_H_TRUE}" && test -z "${HAVE_STDINT_H_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_STDINT_H\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_INTTYPES_H_TRUE}" && test -z "${HAVE_INTTYPES_H_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_INTTYPES_H\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${WITH_GMP_TRUE}" && test -z "${WITH_GMP_FALSE}"; then
+  as_fn_error $? "conditional \"WITH_GMP\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${WITH_GMP_TRUE}" && test -z "${WITH_GMP_FALSE}"; then
+  as_fn_error $? "conditional \"WITH_GMP\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${WITH_GMP_TRUE}" && test -z "${WITH_GMP_FALSE}"; then
+  as_fn_error $? "conditional \"WITH_GMP\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_READLINE_READLINE_H_TRUE}" && test -z "${HAVE_READLINE_READLINE_H_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_READLINE_READLINE_H\" was never defined.
+Usually this means the macro was only invoked conditionally." "$LINENO" 5
+fi
+if test -z "${HAVE_UNISTD_H_TRUE}" && test -z "${HAVE_UNISTD_H_FALSE}"; then
+  as_fn_error $? "conditional \"HAVE_UNISTD_H\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 
