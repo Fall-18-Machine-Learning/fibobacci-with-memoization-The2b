@@ -38,5 +38,5 @@ struct fibStruct* buildFibStruct(size_t fibSize);	    // Executes both of the ab
 
 void destroyFibStruct(struct fibStruct*);		    // Frees all memory tied to a fibStruct
 
-int fibValue(struct fibStruct*, size_t index, char* val); // Find the index-th value in the populated fibonacci sequence. Returns NULL if you go our of bounds.
+int fibValue(struct fibStruct*, size_t index, char** val);  // Find the index-th value in the populated fibonacci sequence. Returns NULL if you go our of bounds.
 #endif /* _THE2B_FIB_H */

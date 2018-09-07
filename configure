@@ -4350,8 +4350,8 @@ _ACEOF
  have_readline_readline_h=yes
 else
 
-    have_readline_readline_h=no
-    for ac_header in unistd.h
+     have_readline_readline_h=no
+     for ac_header in unistd.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "unistd.h" "ac_cv_header_unistd_h" "$ac_includes_default"
 if test "x$ac_cv_header_unistd_h" = xyes; then :
@@ -4361,8 +4361,8 @@ _ACEOF
  have_unistd_h = yes
 else
 
-	have_unistd_h = no
-	as_fn_error $? "Fatal error: Cannot find either readline/readline.h or unistd.h, one of which is required." "$LINENO" 5
+	 have_unistd_h = no
+	 as_fn_error $? "Fatal error: Cannot find either readline/readline.h or unistd.h, one of which is required." "$LINENO" 5
 
 fi
 
@@ -4378,14 +4378,15 @@ done
 
 # Check whether --with-gmp was given.
 if test "${with_gmp+set}" = set; then :
-  withval=$with_gmp;
+  withval=$with_gmp; with_gmp=no
 else
   with_gmp=check
 fi
 
 
 if test "x$with_gmp" != xno; then :
-  for ac_header in gmp.h
+
+     for ac_header in gmp.h
 do :
   ac_fn_c_check_header_mongrel "$LINENO" "gmp.h" "ac_cv_header_gmp_h" "$ac_includes_default"
 if test "x$ac_cv_header_gmp_h" = xyes; then :
@@ -4402,6 +4403,9 @@ $as_echo "#define FIBSET(set, val) do {mpz_init_set_ui(set,val);} while(0)" >>co
 
 $as_echo "#define FIBADD(fib, val1, val2) do{mpz_init(fib); mpz_add(fib,val1,val2);} while(0)" >>confdefs.h
 
+
+$as_echo "#define FIBGET(fibElem, val) do{*val = mpz_get_str(NULL,10,fibElem);}while(0)" >>confdefs.h
+
 	  if true; then
   WITH_GMP_TRUE=
   WITH_GMP_FALSE='#'
@@ -4413,26 +4417,10 @@ fi
 
 else
 
-	  if false; then
-  WITH_GMP_TRUE=
-  WITH_GMP_FALSE='#'
-else
-  WITH_GMP_TRUE='#'
-  WITH_GMP_FALSE=
-fi
-
 	 if test "x$with_gmp" != xcheck; then
 	    as_fn_error $? "Fatal error: GMP explicitly requested but not found" "$LINENO" 5
 	 else
-
-$as_echo "#define ELEM_T uintmax_t" >>confdefs.h
-
-
-$as_echo "#define FIBSET(set, val) do {set = val;} while(0)" >>confdefs.h
-
-
-$as_echo "#define FIBADD(fib, val1, val2) do {fib = val1 + val2;} while(0)" >>confdefs.h
-
+	    using_gmp=no
 	 fi
 
 fi
@@ -4441,6 +4429,22 @@ done
 
 else
 
+	using_gmp=no
+
+
+fi
+
+# Since there are multiple routes to this, save some time on modification and trigger it if needed
+if test "x$using_gmp" = xno; then :
+
+     if false; then
+  WITH_GMP_TRUE=
+  WITH_GMP_FALSE='#'
+else
+  WITH_GMP_TRUE='#'
+  WITH_GMP_FALSE=
+fi
+
 
 $as_echo "#define ELEM_T uintmax_t" >>confdefs.h
 
@@ -4450,14 +4454,8 @@ $as_echo "#define FIBSET(set, val) do {set = val;} while(0)" >>confdefs.h
 
 $as_echo "#define FIBADD(fib, val1, val2) do {fib = val1 + val2;} while(0)" >>confdefs.h
 
-	 if false; then
-  WITH_GMP_TRUE=
-  WITH_GMP_FALSE='#'
-else
-  WITH_GMP_TRUE='#'
-  WITH_GMP_FALSE=
-fi
 
+$as_echo "#define FIBGET(fibElem,val) do {*val = malloc(sizeof(char) * 256); sprintf(*val,\"%ju\",fibElem);} while(0)" >>confdefs.h
 
 
 fi
@@ -4479,10 +4477,6 @@ else
   HAVE_UNISTD_H_FALSE=
 fi
 
-
-#@TODO FIBGET
-
-# Now, process if we want to disable any of the above features
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4627,10 +4621,6 @@ Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${HAVE_INTTYPES_H_TRUE}" && test -z "${HAVE_INTTYPES_H_FALSE}"; then
   as_fn_error $? "conditional \"HAVE_INTTYPES_H\" was never defined.
-Usually this means the macro was only invoked conditionally." "$LINENO" 5
-fi
-if test -z "${WITH_GMP_TRUE}" && test -z "${WITH_GMP_FALSE}"; then
-  as_fn_error $? "conditional \"WITH_GMP\" was never defined.
 Usually this means the macro was only invoked conditionally." "$LINENO" 5
 fi
 if test -z "${WITH_GMP_TRUE}" && test -z "${WITH_GMP_FALSE}"; then

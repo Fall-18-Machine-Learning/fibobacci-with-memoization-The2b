@@ -1,12 +1,19 @@
 /* config.in.  Generated from configure.ac by autoheader.  */
 
-/* Defines the type of variable to use for the fibStruct data array */
+/* Defines the type of variable to use for the fibStruct data array without
+   using GMP */
 #undef ELEM_T
 
-/* Defines the function for adding two fibonacci values together */
+/* Defines the function for adding two fibonacci values together without using
+   GMP */
 #undef FIBADD
 
-/* Defines the function for initializing and setting fibonacci values */
+/* Defines the function for getting the fibonacci value from a fibonacci
+   structure without using GMP */
+#undef FIBGET
+
+/* Defines the function for initializing and setting fibonacci values without
+   using GMP */
 #undef FIBSET
 
 /* Define to 1 if you have the <gmp.h> header file. */

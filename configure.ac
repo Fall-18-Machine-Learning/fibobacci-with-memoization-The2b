@@ -33,50 +33,53 @@ AS_IF([test "x$have_uintmax_t" = xyes],
  AM_CONDITIONAL([HAVE_INTTYPES_H],[test "x$have_inttypes_h" = xyes])
 
 # Do a similar check for readline
-AC_CHECK_HEADERS([readline/readline.h],[have_readline_readline_h=yes],[
-    have_readline_readline_h=no
-    AC_CHECK_HEADERS([unistd.h],[have_unistd_h = yes],[
-	have_unistd_h = no
-	AC_MSG_ERROR([Fatal error: Cannot find either readline/readline.h or unistd.h, one of which is required.])
+AC_CHECK_HEADERS([readline/readline.h],[have_readline_readline_h=yes],
+    [
+     have_readline_readline_h=no
+     AC_CHECK_HEADERS([unistd.h],[have_unistd_h = yes],[
+	 have_unistd_h = no
+	 AC_MSG_ERROR([Fatal error: Cannot find either readline/readline.h or unistd.h, one of which is required.])
     ])
 ])
 
 
-AC_ARG_WITH([gmp],[AS_HELP_STRING([--without-gmp],[Disables usage of the GNU Multi-Precision libaray @<:@default=check@:>@])],[],[with_gmp=check])
+AC_ARG_WITH([gmp],[AS_HELP_STRING([--without-gmp],[Disables usage of the GNU Multi-Precision libaray @<:@default=check@:>@])],[with_gmp=no],[with_gmp=check])
 
 AS_IF([test "x$with_gmp" != xno],
-    [AC_CHECK_HEADERS([gmp.h],
+    [
+     AC_CHECK_HEADERS([gmp.h],
 	[
-	 AC_DEFINE([ELEM_T],[mpz_t],[Defines the type of variable to use for the fibStruct data array])
-	 AC_DEFINE([FIBSET(set, val)],[do {mpz_init_set_ui(set,val);} while(0)],[Defines the function for initializing and setting fibonacci values])
-	 AC_DEFINE([FIBADD(fib, val1, val2)],[do{mpz_init(fib); mpz_add(fib,val1,val2);} while(0)],[Defines the function for adding two fibonacci values together])
+	 AC_DEFINE([ELEM_T],[mpz_t],[Defines the type of variable to use for the fibStruct data array using GMP])
+	 AC_DEFINE([FIBSET(set, val)],[do {mpz_init_set_ui(set,val);} while(0)],[Defines the function for initializing and setting fibonacci values using GMP])
+	 AC_DEFINE([FIBADD(fib, val1, val2)],[do{mpz_init(fib); mpz_add(fib,val1,val2);} while(0)],[Defines the function for adding two fibonacci values together using GMP])
+	 AC_DEFINE([FIBGET(fibElem, val)],[do{*val = mpz_get_str(NULL,10,fibElem);}while(0)],[Defines the function for getting the fibonacci value from a fibonacci structure using GMP])
 	 AM_CONDITIONAL([WITH_GMP],[true])
 	],
 	[
-	 AM_CONDITIONAL([WITH_GMP],[false])
 	 if test "x$with_gmp" != xcheck; then
 	    AC_MSG_ERROR([Fatal error: GMP explicitly requested but not found])
 	 else
-	    AC_DEFINE([ELEM_T],[uintmax_t],[Defines the type of variable to use for the fibStruct data array])
-	    AC_DEFINE([FIBSET(set, val)],[do {set = val;} while(0)],[Defines the function for initializing and setting fibonacci values])
-	    AC_DEFINE([FIBADD(fib, val1, val2)],[do {fib = val1 + val2;} while(0)],[Defines the function for adding two fibonacci values together])
+	    using_gmp=no
 	 fi
 	],
     )],
     [
-	AC_DEFINE([ELEM_T],[uintmax_t],[Defines the type of variable to use for the fibStruct data array])
-	AC_DEFINE([FIBSET(set, val)],[do {set = val;} while(0)],[Defines the function for initializing and setting fibonacci values])
-	AC_DEFINE([FIBADD(fib, val1, val2)],[do {fib = val1 + val2;} while(0)],[Defines the function for adding two fibonacci values together])
-	AM_CONDITIONAL([WITH_GMP],[false])
+	using_gmp=no
     ]
 )
+
+# Since there are multiple routes to this, save some time on modification and trigger it if needed
+AS_IF([test "x$using_gmp" = xno],
+[
+    AM_CONDITIONAL([WITH_GMP],[false])
+    AC_DEFINE([ELEM_T],[uintmax_t],[Defines the type of variable to use for the fibStruct data array without using GMP])
+    AC_DEFINE([FIBSET(set, val)],[do {set = val;} while(0)],[Defines the function for initializing and setting fibonacci values without using GMP])
+    AC_DEFINE([FIBADD(fib, val1, val2)],[do {fib = val1 + val2;} while(0)],[Defines the function for adding two fibonacci values together without using GMP])
+    AC_DEFINE([FIBGET(fibElem,val)],[do {*val = malloc(sizeof(char) * 256); sprintf(*val,"%ju",fibElem);} while(0)],[Defines the function for getting the fibonacci value from a fibonacci structure without using GMP])
+])
 
 # @TODO Make this optional
 AM_CONDITIONAL([HAVE_READLINE_READLINE_H],[test "x$have_readline_readline_h" = xyes])
 AM_CONDITIONAL([HAVE_UNISTD_H],[test "x$have_readline_readline_h" = xno && "x$have_unistd_h" = xyes])
-
-#@TODO FIBGET
-
-# Now, process if we want to disable any of the above features
 
 AC_OUTPUT()

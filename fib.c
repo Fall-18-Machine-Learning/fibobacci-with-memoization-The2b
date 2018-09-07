@@ -54,7 +54,7 @@ void destroyFibStruct(struct fibStruct* sFib) {
 /**
  * Creates and populates a fibonacci structure
  * This is the only function you should call in order to create such a structure
- *
+  // read only gives us a raw input. Add the null-terminator so that we can actually use the string in the furure*
  * @param size_t size
  * @returns struct fibStruct*
  */
@@ -110,18 +110,14 @@ size0:
  * @param size_t index
  * @returns char* fibVal
  */
-int fibValue(struct fibStruct* sFib, size_t index, char* val) {
+int fibValue(struct fibStruct* sFib, size_t index, char** val) {
     // Since we're using unsigned long long ints, this can be an error checker, since you really shouldn't need to check the first index, and there isn't any other value we can use
     if(index >= sFib->size) {
 	return -1;
     }
 
     else {
-#ifdef HAVE_GMP_H // @TODO Replace this with FIBGET, define FIBGET in configure.ac
-	val = mpz_get_str(NULL,10,sFib->fib[index]);
-#else
-	sprintf(val,"%ju",sFib->fib[index]);
-#endif /* HAVE_GMP_H */
+	FIBGET(sFib->fib[index],val);
     }
     
     return 0;
@@ -135,9 +131,9 @@ int fibValue(struct fibStruct* sFib, size_t index, char* val) {
  * @return int error
  */
 static int outputFibValues(struct fibStruct* sFib) {
-    char fibVal[256];
+    char* fibVal;
     for(size_t index = 1; index < sFib->size; index++) {
-	if(fibValue(sFib,index,fibVal) == 0) {
+	if(fibValue(sFib,index,&fibVal) == 0) {
 	    printf("%zu: %s\n",index,fibVal);
 	}
 	else {
@@ -184,7 +180,7 @@ start:
 #else
 	char sizeStr[256]; // Again, nobody should overflow this (since the resulting fib sequence would be massive in comparison) and if they do, they would need GNU libraries anyway
 	ssize_t strLen = read(STDIN_FILENO, sizeStr, 255);
-	sizeStr[strLen] = '\0';
+	sizeStr[strLen] = '\0'; // read only gives us a raw input. Add the null-terminator so that we can actually use the string in the furure
 #endif /* HAVE_READLINE_READLINE_H */
 
 	// If it's EOF, exit cleanly
@@ -238,8 +234,8 @@ start:
 	}
 
 	// Get our value
-	char fibVal[256]; // This works with or without GMP, since it will be properly written over by GMPs functions if need be
-	if(fibValue(sFib,input,fibVal) == 0) {
+	char* fibVal; // This works with or without GMP, since it will be properly written over by GMPs functions if need be
+	if(fibValue(sFib,input,&fibVal) == 0) {
 	    // Output
 	    printf("%s\n",fibVal);
 	}
