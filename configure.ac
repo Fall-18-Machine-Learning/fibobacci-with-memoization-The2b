@@ -52,6 +52,7 @@ AS_IF([test "x$with_gmp" != xno],
 	AC_DEFINE([FIBADD(fib, val1, val2)],[do{mpz_init(fib); mpz_add(fib,val1,val2);} while(0)],[Defines the function for adding two fibonacci values together using GMP])
 	AC_DEFINE([FIBGET(fibElem, val)],[do{*val = mpz_get_str(NULL,10,fibElem);}while(0)],[Defines the function for getting the fibonacci value from a fibonacci structure using GMP])
 	AM_CONDITIONAL([WITH_GMP],[true])
+	AC_DEFINE([WITH_GMP],[1],[Define as 1 if you are using GNU Multi-Precision libraries])
     ],
     [
      # This shouldn't be here, since I don't have an option to get here. However, if we do, there's a handle for it. If GMP is manually requested (it cannot be), but cannot be found, exit
@@ -83,6 +84,7 @@ AS_IF([test "x$with_readline" != xno],
     [
 	using_readline_readline_h=yes
 	AC_DEFINE([READ_STDIN(str,prompt)],[do {*str = readline(prompt);} while(0)],[Defines the function used to read from stdin the number of fibonacci numbers to calculate with GNU Realine])
+	AC_DEFINE([WITH_READLINE_READLINE_H],[1],[Define as 1 if you are using GNU Realine libraries])
     ],
     [
 	using_readline_readline_h=no
@@ -106,7 +108,7 @@ AS_IF([test "x$using_readline_readline_h" = xno],
 
 AS_IF([test "x$using_unistd_h" = xyes],
 [
-    AC_DEFINE([READ_STDIN(str,prompt)],[do {*str = malloc(sizeof(char) * 256); printf(prompt); int len = read(STDIN_FILENO,*str,255); *(*str + len) = '\0';} while(0)],[Defines the function used to read from stdin the number of fibonacci numbers to calculate without GNU Readline])
+    AC_DEFINE([READ_STDIN(str,prompt)],[do {*str = malloc(sizeof(char) * 256); printf(prompt); fgets(*str,255,stdin);} while(0)],[Defines the function used to read from stdin the number of fibonacci numbers to calculate without GNU Readline])
 ])
 
 # Same as above, this needs to be able to be processed every time, so we check it outside the if statement

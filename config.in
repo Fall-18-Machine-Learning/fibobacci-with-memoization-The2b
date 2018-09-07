@@ -86,6 +86,12 @@
 /* Version number of package */
 #undef VERSION
 
+/* Define as 1 if you are using GNU Multi-Precision libraries */
+#undef WITH_GMP
+
+/* Define as 1 if you are using GNU Realine libraries */
+#undef WITH_READLINE_READLINE_H
+
 /* Define to the widest unsigned integer type if <stdint.h> and <inttypes.h>
    do not define. */
 #undef uintmax_t

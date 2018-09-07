@@ -4398,6 +4398,9 @@ else
 fi
 
 
+$as_echo "#define WITH_GMP 1" >>confdefs.h
+
+
 else
 
      # This shouldn't be here, since I don't have an option to get here. However, if we do, there's a handle for it. If GMP is manually requested (it cannot be), but cannot be found, exit
@@ -4459,6 +4462,9 @@ _ACEOF
 $as_echo "#define READ_STDIN(str,prompt) do {*str = readline(prompt);} while(0)" >>confdefs.h
 
 
+$as_echo "#define WITH_READLINE_READLINE_H 1" >>confdefs.h
+
+
 else
 
 	using_readline_readline_h=no
@@ -4501,7 +4507,7 @@ fi
 if test "x$using_unistd_h" = xyes; then :
 
 
-$as_echo "#define READ_STDIN(str,prompt) do {*str = malloc(sizeof(char) * 256); printf(prompt); int len = read(STDIN_FILENO,*str,255); *(*str + len) = '\\0';} while(0)" >>confdefs.h
+$as_echo "#define READ_STDIN(str,prompt) do {*str = malloc(sizeof(char) * 256); printf(prompt); fgets(*str,255,stdin);} while(0)" >>confdefs.h
 
 
 fi

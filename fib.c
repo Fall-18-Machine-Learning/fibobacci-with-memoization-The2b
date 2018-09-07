@@ -7,6 +7,11 @@
 #pragma GCC diagnostic ignored "-Wunused-function"
 #pragma GCC diagnostic ignored "-Wunused-label"
 #define true 1
+#define false 0
+
+#define EOF_VAL 2
+#define NEWLINE_VAL 1
+
 
 /**
  * Allocate memory for and populate a fibStruct
@@ -151,7 +156,7 @@ static int outputFibValues(struct fibStruct* sFib) {
  *
  * @return int error
  */
-int strToIntErrors() {
+static int strToIntErrors() {
     // Error handling
     if(errno == ERANGE) {
 	printf("That value is too big for a 64-bit unsigned integer. Please input a smaller value\n");
@@ -166,14 +171,44 @@ int strToIntErrors() {
     return 0;
 }
 
+/**
+ * Checks the input for newlines or EOF. Returns 0 if neither are present, 1 if only a newline is present, and 2 if only an EOF is present
+ *
+ * @param char* str
+ * @returns int specialCaseVal
+ */
+static inline int eofNewlineChecker(char* str) {
+#ifdef WITH_READLINE_READLINE_H
+    if(str == NULL) {
+	return EOF_VAL;
+    }
+
+    if(strcmp(str,"") == 0) {
+	return NEWLINE_VAL;
+    }
+
+    return 0;
+#else
+    if(strcmp(str,"") == 0) {
+	return EOF_VAL;
+    }
+
+    if(strcmp(str,"\n") == 0) {
+	return NEWLINE_VAL;
+    }
+
+    return 0;
+#endif
+}
+
 int main() {
     size_t calcSize;
 
 start:
     ;
+    // Error checker
+    int error = 0;
     do {
-	// Error checker
-	int error = 0;
 
 	// Figure out how many fibonacci numbers to calc from user
 	const char* HOW_MANY_FIB_Q = "How many fibonacci numbers would you like to calculate, including 0? ";
@@ -182,13 +217,16 @@ start:
 	// Read from stdin how many fibonacci numbers to calc
 	READ_STDIN(&sizeStr,HOW_MANY_FIB_Q);
 
-	// If it's EOF, exit cleanly
-	if(sizeStr == NULL) {
+	// Check for EOF or newline. Handle each situation appropriately.
+	int eofNewline = eofNewlineChecker(sizeStr);
+
+	if(eofNewline == EOF_VAL) {
 	    printf("\n");
 	    exit(0);
 	}
-	else if(strcmp(sizeStr,"") == 0) {
-	    error = -1;
+
+	else if (eofNewline == NEWLINE_VAL) {
+	    free(sizeStr);
 	    continue;
 	}
 	
@@ -197,10 +235,14 @@ start:
 
 	error = strToIntErrors();
 
+	/*
 	if(calcSize == 0) {
 	    printf("Invalid value. This input accepts positive integers only\n");
 	    error = -1;
 	}
+	*/
+
+	free(sizeStr);
     } while(error == -1);
 
     // Create and memoize a fibonacci structure
@@ -214,47 +256,42 @@ start:
 	
 	READ_STDIN(&str,"");
 
-	// readline returns the empty string on a newline w/o data or w/ invalid data, and NULL on EOF
-	// Handle each situation appropriately
-	if(str == NULL) {
+	// Check for EOF or newline. Handle each situation appropriately.
+	int eofNewline = eofNewlineChecker(str);
+
+	if(eofNewline == EOF_VAL) {
 	    printf("\n");
 	    break;
 	}
 
-	else if (strcmp(str,"") == 0) {
-	    continue;
-	}
-	// @TODO Make this portable
-	// libc implementation
-	/*
-	if(strLen == 0) {
-	    printf("\n");
-	}
-	else if (strcmp(str,"") == 0) {
-	    continue;
-	}
-	*/
-
-	// Protect against buffer overflows of the pre-calc'd fibonacci numbers
-	if(input >= sFib->size) {
-	    printf("Input value must be between 0 and %zu\n",sFib->size - 1);
+	else if (eofNewline == NEWLINE_VAL) {
+	    free(str);
 	    continue;
 	}
 
-	// If we are still running, we have a non-empty value
 	uintmax_t input = strtoumax(str,NULL,10);
 
 	// This error function checks overflows for the size value as well as invalid inputs, prints the proper message, and returns -1 if there's an error, or 0 if there's not. If it returns something other than 0, jump out
 	if(strToIntErrors() != 0) {
+	    free(str);
 	    continue;
 	}
 
-	// Get our value
+	// Protect against buffer overflows of the pre-calc'd fibonacci numbers
+	if(input >= sFib->size) {
+	    printf("Input value must be between 0 and %zu\n",sFib->size - 1);
+	    free(str);
+	    continue;
+	}
+
+	// If we are still running, we have a non-empty value
 	char* fibVal; // This works with or without GMP, since it will be properly written over by GMPs functions if need be
 	if(fibValue(sFib,input,&fibVal) == 0) {
 	    // Output
 	    printf("%s\n",fibVal);
 	}
+
+	free(str);
     }
     
     // Free our memory
