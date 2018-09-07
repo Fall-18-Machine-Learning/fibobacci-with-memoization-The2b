@@ -1,0 +1,20 @@
+To compile this project, the following dependencies are required:
+    bash
+    C99 compliant libc
+    GNU make
+
+Additionally, the following dependencies are optional:
+    GNU Multi-Precision libraries
+    GNU Realine libraries
+
+To compile the project using GNU make, run the following commands:
+    ./configure
+    make
+
+This will automatically detect the presence of GMP and GNU Readline in the included paths, and enable or disable their features as needed. The script will generate the appropriate Makefile and config.h.
+
+To forcefully disable either of these libraries, the options --without-gmp and --without-readline can be passed to configure
+
+Usage of GMP will allow the program to store values such that they are no longer constrained by the 64-bit limit on most systems. Instead, the values are effectively infinite, being limited by the system's available memory
+
+Usage of GNU Readline will allow the program to accept arbitrary sized inputs, rather than the 255 character limit that is placed on it without this library
