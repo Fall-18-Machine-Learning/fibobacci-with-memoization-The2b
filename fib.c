@@ -12,7 +12,6 @@
 #define EOF_VAL 2
 #define NEWLINE_VAL 1
 
-
 /**
  * Allocate memory for and populate a fibStruct
  *
@@ -42,7 +41,7 @@ static struct fibStruct* createFibStruct(size_t size) {
  */
 void destroyFibStruct(struct fibStruct* sFib) {
     // Destroy all of the memory allocated for fib
-#ifdef HAVE_GMP_H
+#ifdef WITH_GMP_H
     for(size_t index = 0; index < sFib->size; index++) {
 	mpz_clear(sFib->fib[index]);
     }
