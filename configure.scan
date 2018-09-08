@@ -10,10 +10,8 @@ AC_CONFIG_HEADERS([config.h])
 AC_PROG_CC
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-lgmp':
-AC_CHECK_LIB([gmp], [main])
-# FIXME: Replace `main' with a function in `-lreadline':
-AC_CHECK_LIB([readline], [main])
+AC_CHECK_LIB([gmp], [mpz_init])
+AC_CHECK_LIB([readline], [readline])
 
 # Checks for header files.
 AC_CHECK_HEADERS([inttypes.h stdint.h stdlib.h string.h unistd.h])
