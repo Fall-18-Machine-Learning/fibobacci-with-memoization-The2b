@@ -24,7 +24,7 @@ AC_CHECK_LIB([gmp], [mpz_init])
 AC_CHECK_LIB([readline], [readline])
 
 # Verify strtoumax is defined in inttypes.h
-AC_CHECK_FUNCS([strtoumax],[],[AC_MSG_ERROR([Fatal error. The function strtoumax is not defined. Per C99, it should be defined in inttypes.h])
+AC_CHECK_FUNCS([strtoumax],[],[AC_MSG_ERROR([Fatal error. The function strtoumax is not defined. Per C99, it should be defined in inttypes.h])])
 
 # Verifies standard headers we're including actually exist
 AC_CHECK_HEADERS([inttypes.h stdint.h stdlib.h string.h unistd.h])
