@@ -12,6 +12,12 @@ AC_CONFIG_FILES([Makefile])
 # Verify we have a C compiler, and set it to the variable CC here and in the Makefile
 AC_PROG_CC()
 
+# Set inline to either something the compiler can use, or ignore the keyword if the compiler can't work with it
+AC_C_INLINE()
+
+# If the compiler/libraries do not define an appropriate size_t, do so ourselves
+AC_TYPE_SIZE_T()
+
 # I'm putting two statements here looking for uintmax_t. One is to guarentee it is defined, whether natively or via macro
 # The other is to tell automake whether or not stdint.h and inttypes.h need to be included, since I cannot set variables in the first command
 AC_TYPE_UINTMAX_T()
@@ -94,6 +100,7 @@ AS_IF([test "x$with_readline" != xno],
     using_readline_readline_h=no
 ])
 
+# If we don't have (or don't want) GNU Readline, verify we have a unistd.h to pull. If not, error out
 AS_IF([test "x$using_readline_readline_h" = xno],
 [
     AC_CHECK_HEADERS([unistd.h],
@@ -106,6 +113,7 @@ AS_IF([test "x$using_readline_readline_h" = xno],
     ])
 ])
 
+# If we are using the alternative, we need to set the function we're using to read from stdin
 AS_IF([test "x$using_unistd_h" = xyes],
 [
     AC_DEFINE([READ_STDIN(str,prompt)],[do {*str = malloc(sizeof(char) * 256); printf(prompt); fgets(*str,256,stdin);} while(0)],[Defines the function used to read from stdin the number of fibonacci numbers to calculate without GNU Readline])
