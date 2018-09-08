@@ -1,3 +1,4 @@
+AC_PREREQ([2.69])
 AC_INIT([fibonacci],[1.0])
 
 # Enable automake warnings, make them fatal since they're less silly than GCC warnings, and disable GNU Standard enforcement
@@ -10,17 +11,27 @@ AC_CONFIG_HEADERS([config.h:config.in])
 AC_CONFIG_FILES([Makefile])
 
 # Verify we have a C compiler, and set it to the variable CC here and in the Makefile
-AC_PROG_CC()
+AC_PROG_CC
 
 # Set inline to either something the compiler can use, or ignore the keyword if the compiler can't work with it
-AC_C_INLINE()
+AC_C_INLINE
 
 # If the compiler/libraries do not define an appropriate size_t, do so ourselves
-AC_TYPE_SIZE_T()
+AC_TYPE_SIZE_T
+
+# Checks for libraries and verifies they have viable functions
+AC_CHECK_LIB([gmp], [mpz_init])
+AC_CHECK_LIB([readline], [readline])
+
+# Verify strtoumax is defined in inttypes.h
+AC_CHECK_FUNCS([strtoumax],[],[AC_MSG_ERROR([Fatal error. The function strtoumax is not defined. Per C99, it should be defined in inttypes.h])
+
+# Verifies standard headers we're including actually exist
+AC_CHECK_HEADERS([inttypes.h stdint.h stdlib.h string.h unistd.h])
 
 # I'm putting two statements here looking for uintmax_t. One is to guarentee it is defined, whether natively or via macro
 # The other is to tell automake whether or not stdint.h and inttypes.h need to be included, since I cannot set variables in the first command
-AC_TYPE_UINTMAX_T()
+AC_TYPE_UINTMAX_T
 AC_CHECK_TYPE([uintmax_t],[have_uintmax_t=yes],[have_uintmax_t=no])
 
 # Tell Makefile whether or not uintmax_t is native. This will affect header requirements
@@ -124,4 +135,4 @@ AM_CONDITIONAL([WITH_READLINE_READLINE_H],[test "x$using_readline_readline_h" = 
 AM_CONDITIONAL([WITH_UNISTD_H],[test "x$using_readline_readline_h" = xno && "x$have_unistd_h" = xyes])
 
 # Let autoconf know it's got all the instructions, go to work!
-AC_OUTPUT()
+AC_OUTPUT
