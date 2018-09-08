@@ -1,0 +1,7 @@
+To compile the project using GNU make, run the following commands:
+    ./configure
+    make
+
+This will automatically detect the presence of GMP and GNU Readline in the included paths, and enable or disable their features as needed. The script will generate the appropriate Makefile and config.h.
+
+To forcefully disable either of these libraries, the options --without-gmp and --without-readline can be passed to configure

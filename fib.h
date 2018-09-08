@@ -1,19 +1,28 @@
+/**
+ * @author Thomas Lenz <thomas.lenz96@gmail.com> AS The2b
+ * @date 08 September 2018
+ * @project Fibonacci Memoization
+ * @file fib.h
+ *
+ * Manages includes, provides prototypes for functions, and defines fibStruct
+ */
+
 #ifndef _THE2B_FIB_H
 #define _THE2B_FIB_H
 
 #include "config.h"
 
 #include <stdlib.h>		// malloc
-#include <stdio.h>		// printf
+#include <stdio.h>		// printf, sprintf, fgets
 #include <string.h>		// strcmp
 #include <errno.h>		// errno
 
 #ifdef HAVE_UINTMAX_T
 # ifdef HAVE_STDINT_H
-#  include <stdint.h>
+#  include <stdint.h>		// Possibly uintmax_t
 # endif /* HAVE_STDINT_H */
 # ifdef HAVE_INTTYPES_H
-#  include <inttypes.h>
+#  include <inttypes.h>		// strtoumax, possibly uintmax_t
 # endif
 #endif /* HAVE_UINTMAX_T */
 
@@ -29,7 +38,7 @@
 
 struct fibStruct {
     size_t size;					    // The number of fibonacci values we want to calculate. Has an unenforced cap of 94, afterwhich overflows occur
-    ELEM_T* fib;					    // The array which holds the calculated values
+    ELEM_T* fib;					    // The array which holds the calculated values. Pointer typing detemined at compile-time
 };
 
 static struct fibStruct* createFibStruct(size_t fibSize);   // Allocates memory for the struct, returns the pointer

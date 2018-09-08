@@ -1,5 +1,5 @@
 AC_PREREQ([2.69])
-AC_INIT([fibonacci],[1.0])
+AC_INIT([fibonacci],[1.0],[thomas.lenz96@gmail.com])
 
 # Enable automake warnings, make them fatal since they're less silly than GCC warnings, and disable GNU Standard enforcement
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])

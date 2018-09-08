@@ -7,14 +7,8 @@ Additionally, the following dependencies are optional:
     GNU Multi-Precision libraries
     GNU Realine libraries
 
-To compile the project using GNU make, run the following commands:
-    ./configure
-    make
+Usage of GMP will allow the program to store values such that they are no longer constrained by the 64-bit limit on most systems. Instead, the values are effectively infinite, being limited by the system's available memory and CPU register throughput. As the number increases, so does the number of transactions between RAM and CPU registers. These operations have a time complexity of O(cn).
 
-This will automatically detect the presence of GMP and GNU Readline in the included paths, and enable or disable their features as needed. The script will generate the appropriate Makefile and config.h.
+Usage of GNU Readline will allow the program to accept arbitrary sized inputs, rather than the 255 character limit that is placed on it without this library. This dependency is far less useful, but still made available none the less. If your computer has the memory and throughput to calculate and store x*10^255 values in a reasonable amount of time, I seriously question your priorities. Question number one being *why do you want or need a fibonacci value that high?!?!?!*
 
-To forcefully disable either of these libraries, the options --without-gmp and --without-readline can be passed to configure
-
-Usage of GMP will allow the program to store values such that they are no longer constrained by the 64-bit limit on most systems. Instead, the values are effectively infinite, being limited by the system's available memory
-
-Usage of GNU Readline will allow the program to accept arbitrary sized inputs, rather than the 255 character limit that is placed on it without this library
+Both libraries, as well as GNU autotools, are distributed under the GNU v2 libraries. The rest of the data in this repository is not licensed.

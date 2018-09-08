@@ -1,5 +1,10 @@
 /**
- *
+ * @author Thomas Lenz <thomas.lenz96@gmail.com> AS The2b
+ * @date 08 September 2018
+ * @project Fibonacci Memoization
+ * @file fib.c
+ * 
+ * Handles most of the fibonacci memoization. Anything that isn't handled here is abstracted away from it and macro'd in by configure
  */
 
 #include "fib.h"
