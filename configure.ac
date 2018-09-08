@@ -116,23 +116,23 @@ AS_IF([test "x$using_readline_readline_h" = xno],
 [
     AC_CHECK_HEADERS([unistd.h],
     [
-	using_unistd_h=yes
+	using_stdio_h=yes
     ],
     [
-	using_unistd_h=no
+	using_stdio_h=no
 	AC_MSG_ERROR([Fatal error: Cannot find either readline/readline.h or unistd.h, one of which is required.])
     ])
 ])
 
 # If we are using the alternative, we need to set the function we're using to read from stdin
-AS_IF([test "x$using_unistd_h" = xyes],
+AS_IF([test "x$using_stdio_h" = xyes],
 [
     AC_DEFINE([READ_STDIN(str,prompt)],[do {*str = malloc(sizeof(char) * 256); printf(prompt); fgets(*str,256,stdin);} while(0)],[Defines the function used to read from stdin the number of fibonacci numbers to calculate without GNU Readline])
 ])
 
 # Same as above, this needs to be able to be processed every time, so we check it outside the if statement
 AM_CONDITIONAL([WITH_READLINE_READLINE_H],[test "x$using_readline_readline_h" = xyes])
-AM_CONDITIONAL([WITH_UNISTD_H],[test "x$using_readline_readline_h" = xno && "x$have_unistd_h" = xyes])
+AM_CONDITIONAL([WITH_STDIO_H],[test "x$using_readline_readline_h" = xno && "x$using_unistd_h" = xyes])
 
 # Let autoconf know it's got all the instructions, go to work!
 AC_OUTPUT

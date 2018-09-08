@@ -28,9 +28,7 @@
 
 #ifdef HAVE_READLINE_READLINE_H
 #include <readline/readline.h>	// readline
-#else
-#include <unistd.h>
-#endif /* HAS_READLINE_READLINE_H */
+#endif /* HAS_READLINE_READLINE_H */ // No need for an else since the alternative, stdio.h, is already included regardless
 
 #ifdef HAVE_GMP_H
 #include <gmp.h>
