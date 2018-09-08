@@ -172,8 +172,8 @@ static int strToIntErrors() {
     }
     
     else if(errno == EINVAL) {
-	// This will only occur if the base is invalid. Since it's hard coded, we should never be here
-	printf("Invalid base value. Were modifications made to fib.c?\n");
+	// In some implentations, this can occur if we get an invalid input. In all standard implementations, this will occur if there's an invalid base value. Since the base value is hard coded, let's assume this is the former.
+	printf("Invalid input. This input accepts only positive integers.\n");
 	return -1;
     }
 
@@ -247,7 +247,7 @@ start:
 	// Catch errors
 	error = strToIntErrors();
 
-	// I need an additional error check here in case non-alphanumeric characters are input, since errno won't catch it
+	// I need an additional error check here in case non-alphanumeric characters are input, since errno won't catch it in all implementations
 	if(calcSize == NULL) { // Null will automatically cast to an int
 	    printf("Invalid value. This input accepts positive integers only\n");
 	    error = -1;
