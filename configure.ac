@@ -30,8 +30,6 @@ AC_CHECK_HEADERS([string.h],[],[AC_MSG_ERROR([Fatal error. string.h does not exi
 AC_CHECK_FUNCS([strtoumax],[],[AC_MSG_ERROR([Fatal error. The function strtoumax is not defined. Per C99, it should be defined in inttypes.h])])
 
 # Checks for libraries and verifies they have viable functions
-AC_CHECK_LIB([gmp], [mpz_init])
-AC_CHECK_LIB([readline], [readline])
 
 # I'm putting two statements here looking for uintmax_t. One is to guarentee it is defined, whether natively or via macro
 # The other is to tell automake whether or not stdint.h and inttypes.h need to be included, since I cannot set variables in the first command
@@ -68,22 +66,32 @@ AS_IF([test "x$with_gmp" != xno],
 [
     AC_CHECK_HEADERS([gmp.h],
     [
-	AC_DEFINE([ELEM_T],[mpz_t],[Defines the type of variable to use for the fibStruct data array using GMP])
-	AC_DEFINE([FIBSET(set, val)],[do {mpz_init_set_ui(set,val);} while(0)],[Defines the function for initializing and setting fibonacci values using GMP])
-	AC_DEFINE([FIBADD(fib, val1, val2)],[do{mpz_init(fib); mpz_add(fib,val1,val2);} while(0)],[Defines the function for adding two fibonacci values together using GMP])
-	AC_DEFINE([FIBGET(fibElem, val)],[do{*val = mpz_get_str(NULL,10,fibElem);}while(0)],[Defines the function for getting the fibonacci value from a fibonacci structure using GMP])
-	AM_CONDITIONAL([WITH_GMP],[true])
-	AC_DEFINE([WITH_GMP],[1],[Define as 1 if you are using GNU Multi-Precision libraries])
-    ],
+	AC_CHECK_LIB([gmp], [__gmpz_init],[
+	    AC_DEFINE([ELEM_T],[mpz_t],[Defines the type of variable to use for the fibStruct data array using GMP])
+	    AC_DEFINE([FIBSET(set, val)],[do {mpz_init_set_ui(set,val);} while(0)],[Defines the function for initializing and setting fibonacci values using GMP])
+	    AC_DEFINE([FIBADD(fib, val1, val2)],[do{mpz_init(fib); mpz_add(fib,val1,val2);} while(0)],[Defines the function for adding two fibonacci values together using GMP])
+	    AC_DEFINE([FIBGET(fibElem, val)],[do{*val = mpz_get_str(NULL,10,fibElem);}while(0)],[Defines the function for getting the fibonacci value from a fibonacci structure using GMP])
+	    AM_CONDITIONAL([WITH_GMP],[true])
+	    AC_DEFINE([WITH_GMP],[1],[Define as 1 if you are using GNU Multi-Precision libraries])
+	],
+	[
+	 # This shouldn't be used, since I don't have an option to get here. However, if we do, there's a handle for it. If GMP is manually requested (it cannot be), but cannot be found, exit
+	 if test "x$with_gmp" != xcheck; then
+	    AC_MSG_ERROR([Fatal error: GMP explicitly requested but not found])
+	 else
+	    using_gmp=no
+	 fi
+	],
+    )],
     [
-     # This shouldn't be here, since I don't have an option to get here. However, if we do, there's a handle for it. If GMP is manually requested (it cannot be), but cannot be found, exit
-     if test "x$with_gmp" != xcheck; then
-	AC_MSG_ERROR([Fatal error: GMP explicitly requested but not found])
-     else
-	using_gmp=no
-     fi
-    ],
-)],
+	 # This shouldn't be used, since I don't have an option to get here. However, if we do, there's a handle for it. If GMP is manually requested (it cannot be), but cannot be found, exit
+	 if test "x$with_gmp" != xcheck; then
+	    AC_MSG_ERROR([Fatal error: GMP explicitly requested but not found])
+	 else
+	    using_gmp=no
+	 fi
+    ])
+],
 [
     using_gmp=no
 ])
@@ -103,12 +111,23 @@ AS_IF([test "x$with_readline" != xno],
 [
     AC_CHECK_HEADERS([readline/readline.h],
     [
-	using_readline_readline_h=yes
-	AC_DEFINE([READ_STDIN(str,prompt)],[do {*str = readline(prompt);} while(0)],[Defines the function used to read from stdin the number of fibonacci numbers to calculate with GNU Realine])
-	AC_DEFINE([WITH_READLINE_READLINE_H],[1],[Define as 1 if you are using GNU Realine libraries])
+	AC_CHECK_LIB([readline], [readline],
+	[
+	    using_readline_readline_h=yes
+	    AC_DEFINE([READ_STDIN(str,prompt)],[do {*str = readline(prompt);} while(0)],[Defines the function used to read from stdin the number of fibonacci numbers to calculate with GNU Realine])
+	    AC_DEFINE([WITH_READLINE_READLINE_H],[1],[Define as 1 if you are using GNU Realine libraries])
+	],
+	[
+	    using_readline_readline_h=no
+	])
     ],
     [
-	using_readline_readline_h=no
+	# Same as with GMP, this is just a safeguard if there's some way to change the value that I'm unaware of
+	if test"x$with_readline" != xcheck; then
+	    AC_MSG_ERROR([Fatal error: GNU Readline explicitly requested but not found])
+	else
+	    using_readline_readline_h=no
+	fi
     ])
 ],
 [
@@ -118,7 +137,7 @@ AS_IF([test "x$with_readline" != xno],
 # If we don't have (or don't want) GNU Readline, verify we have a unistd.h to pull. If not, error out
 AS_IF([test "x$using_readline_readline_h" = xno],
 [
-    AC_CHECK_HEADERS([unistd.h],
+    AC_CHECK_HEADERS([stdio.h],
     [
 	using_stdio_h=yes
     ],
@@ -136,7 +155,7 @@ AS_IF([test "x$using_stdio_h" = xyes],
 
 # Same as above, this needs to be able to be processed every time, so we check it outside the if statement
 AM_CONDITIONAL([WITH_READLINE_READLINE_H],[test "x$using_readline_readline_h" = xyes])
-AM_CONDITIONAL([WITH_STDIO_H],[test "x$using_readline_readline_h" = xno && "x$using_unistd_h" = xyes])
+AM_CONDITIONAL([WITH_STDIO_H],[test "x$using_readline_readline_h" = xno && test "x$using_stdio_h" = xyes])
 
 # Let autoconf know it's got all the instructions, go to work!
 AC_OUTPUT
