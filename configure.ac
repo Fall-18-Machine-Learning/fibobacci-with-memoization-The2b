@@ -19,15 +19,19 @@ AC_C_INLINE
 # If the compiler/libraries do not define an appropriate size_t, do so ourselves
 AC_TYPE_SIZE_T
 
-# Checks for libraries and verifies they have viable functions
-AC_CHECK_LIB([gmp], [mpz_init])
-AC_CHECK_LIB([readline], [readline])
+# Verifies standard headers we're including actually exist
+AC_CHECK_HEADERS([inttypes.h],[],[AC_MSG_ERROR([Fatal error. inttypes.h does not exist. Per C99, this should exist in your standard libc. Without it, the program cannot be compiled])])
+AC_CHECK_HEADERS([stdint.h],[],[AC_MSG_ERROR([Fatal error. stdint.h does not exist. Per C99, this should exist in your standard libc. Without it, the program cannot be compiled])])
+AC_CHECK_HEADERS([stdlib.h],[],[AC_MSG_ERROR([Fatal error. stdlib.h does not exist. Per C99, this should exist in your standard libc. Without it, the program cannot be compiled])])
+AC_CHECK_HEADERS([string.h],[],[AC_MSG_ERROR([Fatal error. string.h does not exist. Per C99, this should exist in your standard libc. Without it, the program cannot be compiled])])
+# @TODO Finish this
 
 # Verify strtoumax is defined in inttypes.h
 AC_CHECK_FUNCS([strtoumax],[],[AC_MSG_ERROR([Fatal error. The function strtoumax is not defined. Per C99, it should be defined in inttypes.h])])
 
-# Verifies standard headers we're including actually exist
-AC_CHECK_HEADERS([inttypes.h stdint.h stdlib.h string.h unistd.h])
+# Checks for libraries and verifies they have viable functions
+AC_CHECK_LIB([gmp], [mpz_init])
+AC_CHECK_LIB([readline], [readline])
 
 # I'm putting two statements here looking for uintmax_t. One is to guarentee it is defined, whether natively or via macro
 # The other is to tell automake whether or not stdint.h and inttypes.h need to be included, since I cannot set variables in the first command

@@ -12,6 +12,7 @@
 
 #include "config.h"
 
+// I'm not going to add shields here since if you don't have these, you won't be able to compile anything
 #include <stdlib.h>		// malloc
 #include <stdio.h>		// printf, sprintf, fgets
 #include <string.h>		// strcmp
