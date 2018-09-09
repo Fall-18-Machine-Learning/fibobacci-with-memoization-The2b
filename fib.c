@@ -228,6 +228,12 @@ start:
 	// This is defined at compilation time. When configure decides whether or not to use GNU Readline, it puts a macro into config.h with the proper command.
 	READ_STDIN(&sizeStr,HOW_MANY_FIB_Q);
 
+	// Verify the input is not negative
+	if(sizeStr[0] == '-') {
+	    printf("Invalid value. This input accepts positive integers only\n");
+	    continue;
+	}
+
 	// Check for EOF or newline. Handle each situation appropriately.
 	int eofNewline = eofNewlineChecker(sizeStr);
 
@@ -248,7 +254,7 @@ start:
 	error = strToIntErrors();
 
 	// I need an additional error check here in case non-alphanumeric characters are input, since errno won't catch it in all implementations
-	if(calcSize == NULL) { // Null will automatically cast to an int
+	if(calcSize == NULL && error == 0) { // Null will automatically cast to an int
 	    printf("Invalid value. This input accepts positive integers only\n");
 	    error = -1;
 	}
